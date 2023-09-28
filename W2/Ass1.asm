@@ -1,11 +1,4 @@
-.data
-
-x: .byte 256
-
+#Laboratory Exercise 2, Assignment 1
 .text
-
-# Assign X, Y
-
-la $t1, x
-
-lb $t2, 0($t1)
+addi $s0, $zero, 0x2110003d # $s0 = 0 + 0x3007 = 0x3007 ;I-type
+add $s0, $zero, $0 # $s0 = 0 + 0 = 0 ;R-type
