@@ -1,6 +1,6 @@
 .data
-    s1: .word 5
-    s2: .word -2
+    s1: .word 2021212370
+    s2: .word 1523653220
 
 .text
 start:
