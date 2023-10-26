@@ -1,33 +1,32 @@
-#Laboratory Exercise 5, Assignment 3
 .data
-string: 	.space 50
-Message1: 	.asciiz "Nhap xau: ”
-Message2: 	.asciiz "Do dai la "
+A: 	.word 7, -2, 5, 1, 5, 6, 7, 3, 6, 8, 8, 59, 5
+Aend: 	.word
 .text
-main:
-get_string: 
-	li 	$v0, 54
-    	la 	$a0, Message1
-	la	$a1, string
-	li 	$a2, 50
-	syscall
-get_length: 	
-	la 	$a0, string
-	xor 	$v0, $zero, $zero 
-	xor 	$t0, $zero, $zero
-check_char: 	
-	add 	$t1, $a0, $t0 
-	lb 	$t2, 0($t1)
-	beq 	$t2,$zero,end_of_str 
-	addi 	$v0, $v0, 1 
-	addi 	$t0, $t0, 1 
-	j 	check_char
-end_of_str:
-end_of_get_length:
-print_length:
-	sub	$v0,$v0,1
-	move	$s2,$v0
-	li 	$v0, 56
-    	la 	$a0, Message2
-    	add 	$a1,$s2,$0
-	syscall
+main: 	
+	la	$a0,A
+	la 	$t0,Aend
+	addi	$a0,$a0,-4
+	addi	$t1,$t0,-4
+loop1:	
+	addi	$a1,$a0,4
+	addi 	$a0,$a0,4
+	beq	$a0,$t0,end
+	nop
+loop2:
+	lw	$s0,0($a0)
+	lw	$s1,0($a1)
+	bgt	$s0,$s1,sort
+	j 	next
+	nop
+sort:
+	sw	$s1,0($a0)
+	sw	$s0,0($a1)
+	j 	next
+	nop
+next:
+	beq	$a1,$t1,loop1
+	addi	$a1,$a1,4
+	j 	loop2
+	nop
+end:
+	
