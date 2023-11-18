@@ -2,6 +2,9 @@
     prompt:     .asciiz "Enter the number of elements in the array: "
     arrayPrompt: .asciiz "Enter element "
     maxMessage:  .asciiz "The maximum element is: "
+    prompt1:        .asciiz "Enter the first number: "
+    prompt2:        .asciiz "Enter the second number: "
+    distanceMessage: .asciiz "The distance between the two numbers is: "
 
 .text
 main:
@@ -68,6 +71,41 @@ main:
     syscall
     move $a0, $t3
     li $v0, 1
+    syscall
+    
+    # Prompt for the number of elements in the array
+    li $v0, 4
+    la $a0, prompt1
+    syscall
+
+    # Read the first number
+    li $v0, 5
+    syscall
+    move $t4, $v0 # $t4 = first number
+
+    # Prompt for the second number
+    li $v0, 4
+    la $a0, prompt2
+    syscall
+
+    # Read the second number
+    li $v0, 5
+    syscall
+    move $t5, $v0 # $t5 = second number
+
+    # Calculate the distance between the two numbers
+    sub $t6, $t5, $t4 # $t6 = distance
+
+    # Print the distance
+    li $v0, 4
+    la $a0, distanceMessage
+    syscall
+    move $a0, $t6
+    li $v0, 1
+    syscall
+
+    # Exit the program
+    li $v0, 10
     syscall
 
     end_program:
