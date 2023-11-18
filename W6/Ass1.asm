@@ -21,11 +21,14 @@ end_of_main:
 #function: find the maximum-prefix sum in a list of integers
 #the base address of the list(A) is stored in $a0
 #the number of elements is stored in a1
-mspfx:  addi $v0,$zero,0		#initialize the length in $v0 to0
+mspfx:  
+	addi $v0,$zero,0		#initialize the length in $v0 to0
 	addi $v1,$zero,0		#initialize the max sum in $v1to 0
 	addi $t0,$zero,0		#initialize the index i in $t0 to 0
 	addi $t1,$zero,0		#initialize the running sum in $t1 to 0
-loop:   add $t2,$t0,$t0		#put 2i in $t2
+		
+loop:   
+	add $t2,$t0,$t0		#put 2i in $t2
 	add $t2,$t2,$t2		#put 4i in $t2
 	add $t3,$t2,$a0		#put 4i+A (address of A[i]) in $t3
 	lw  $t4,0($t3)		#load A[i] from mem(t3) into $t4
