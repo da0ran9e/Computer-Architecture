@@ -1,10 +1,10 @@
 .data
-    prompt:     .asciiz "Enter the number of elements in the array: "
-    arrayPrompt: .asciiz "Enter element "
-    maxMessage:  .asciiz "The maximum element is: "
-    prompt1:        .asciiz "Enter the first number: "
-    prompt2:        .asciiz "Enter the second number: "
-    distanceMessage: .asciiz "The distance between the two numbers is: "
+    prompt:        .asciiz "Enter the number of elements in the array: "
+    arrayPrompt:   .asciiz "Enter element "
+    maxMessage:    .asciiz "The maximum element is: "
+    indexPrompt1:  .asciiz "Enter the first index: "
+    indexPrompt2:  .asciiz "Enter the second index: "
+    distanceLabel: .asciiz "The distance between the elements is: "
 
 .text
 main:
@@ -72,43 +72,43 @@ main:
     move $a0, $t3
     li $v0, 1
     syscall
-    
-    # Prompt for the number of elements in the array
-    li $v0, 4
-    la $a0, prompt1
-    syscall
 
-    # Read the first number
+    # Prompt for the first index
+    li $v0, 4
+    la $a0, indexPrompt1
+    syscall
     li $v0, 5
     syscall
-    move $t4, $v0 # $t4 = first number
+    move $t4, $v0 # $t4 = first index
 
-    # Prompt for the second number
+    # Prompt for the second index
     li $v0, 4
-    la $a0, prompt2
+    la $a0, indexPrompt2
     syscall
-
-    # Read the second number
     li $v0, 5
     syscall
-    move $t5, $v0 # $t5 = second number
+    move $t5, $v0 # $t5 = second index
 
-    # Calculate the distance between the two numbers
-    sub $t6, $t5, $t4 # $t6 = distance
+    # Calculate the distance between the elements
+    sub $t4, $t4, $t5
+    abs $t4, $t4
 
     # Print the distance
     li $v0, 4
-    la $a0, distanceMessage
+    la $a0, distanceLabel
     syscall
-    move $a0, $t6
+    move $a0, $t4
     li $v0, 1
-    syscall
-
-    # Exit the program
-    li $v0, 10
     syscall
 
     end_program:
     # Exit the program
     li $v0, 10
     syscall
+
+# Custom subroutine to calculate absolute value
+abs:
+    bgez $a0, no_negate
+    negu $a0, $a0
+    no_negate:
+    jr $ra
