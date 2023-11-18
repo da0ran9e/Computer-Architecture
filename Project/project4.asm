@@ -20,10 +20,22 @@
         syscall
         jr $ra
 
+    # Function to print a character
+    print_char:
+        li $v0, 11
+        syscall
+        jr $ra
+
     # Function to print a string
     print_str:
-        li $v0, 4
-        syscall
+        move $a0, $t0  # Load the address of the string
+    print_str_loop:
+        lb $a1, 0($a0)  # Load the current character
+        beqz $a1, print_str_done  # Exit loop if null terminator
+        jal print_char  # Print the current character
+        addi $a0, $a0, 1  # Move to the next character
+        j print_str_loop  # Repeat the loop
+    print_str_done:
         jr $ra
 
     # Function to find the maximum element in an array
@@ -59,16 +71,14 @@
     .globl main
 main:
     # Prompt for the size of the array
-    print_str(prompt_array)
+    la $t0, prompt_array
+    jal print_str
     jal read_int
     move $t6, $v0        # Store the size of the array
 
     # Prompt for array elements
-    la $a0, prompt_values
-    li $v0, 4
-    syscall
-
-    # Initialize the array
+    la $t0, prompt_values
+    jal print_str
     la $t7, array
     la $t8, array_end
     li $t0, 0            # Index i
@@ -84,7 +94,8 @@ read_loop:
 read_done:
 
     # Prompt for the range (m, M)
-    print_str(prompt_range)
+    la $t0, prompt_range
+    jal print_str
     jal read_int
     move $a0, $v0        # Store m
     jal read_int
@@ -96,11 +107,9 @@ read_done:
 
     # Count elements in the range (m, M)
     la $a0, result_count
-    li $v0, 4
-    syscall
+    jal print_str
     la $a0, newline
-    li $v0, 4
-    syscall
+    jal print_str
     move $a0, $t9
     move $a1, $t6
     jal count_in_range
@@ -108,15 +117,13 @@ read_done:
 
     # Print the maximum element
     la $a0, result_max
-    li $v0, 4
-    syscall
+    jal print_str
     move $a0, $t9
     jal print_int
 
     # Print the count
     la $a0, result_count
-    li $v0, 4
-    syscall
+    jal print_str
     move $a0, $t3
     jal print_int
 
