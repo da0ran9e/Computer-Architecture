@@ -1,10 +1,9 @@
 .data
-    prompt:        .asciiz "Enter the number of elements in the array: "
-    arrayPrompt:   .asciiz "Enter element "
-    maxMessage:    .asciiz "The maximum element is: "
-    indexPrompt1:  .asciiz "Enter the first index: "
-    indexPrompt2:  .asciiz "Enter the second index: "
-    distanceLabel: .asciiz "The distance between the elements is: "
+    prompt:         .asciiz "Enter the number of elements in the array: "
+    arrayPrompt:    .asciiz "Enter element "
+    rangePrompt:    .asciiz "Enter the lower and upper bounds: "
+    countMessage:   .asciiz "The number of elements between the given range is: "
+    invalidRange:   .asciiz "Invalid range! Please enter valid lower and upper bounds."
 
 .text
 main:
@@ -65,39 +64,55 @@ main:
     # Check if all elements have been read
     bne $t2, $t0, read_loop
 
-    # Print the maximum element
+    # Prompt for lower and upper bounds
     li $v0, 4
-    la $a0, maxMessage
-    syscall
-    move $a0, $t3
-    li $v0, 1
+    la $a0, rangePrompt
     syscall
 
-    # Prompt for the first index
-    li $v0, 4
-    la $a0, indexPrompt1
-    syscall
+    # Read lower bound
     li $v0, 5
     syscall
-    move $t4, $v0 # $t4 = first index
+    move $t4, $v0
 
-    # Prompt for the second index
-    li $v0, 4
-    la $a0, indexPrompt2
-    syscall
+    # Read upper bound
     li $v0, 5
     syscall
-    move $t5, $v0 # $t5 = second index
+    move $t5, $v0
 
-    # Calculate the distance between the elements
-    sub $t4, $t4, $t5
-    abs $t4, $t4
-
-    # Print the distance
+    # Check if the range is valid
+    bge $t5, $t4, valid_range
     li $v0, 4
-    la $a0, distanceLabel
+    la $a0, invalidRange
     syscall
-    move $a0, $t4
+    j end_program
+
+    valid_range:
+    # Initialize the count of elements in the given range
+    li $t6, 0
+
+    # Iterate through the array to count elements within the range
+    li $t2, 0 # Reset index to 0
+    count_loop:
+    lw $t7, 0($t1) # Load element from the array
+    bge $t7, $t4, check_upper_bound
+    j next_count_iteration
+
+    check_upper_bound:
+    ble $t7, $t5, increment_count
+    j next_count_iteration
+
+    increment_count:
+    addi $t6, $t6, 1
+
+    next_count_iteration:
+    addi $t2, $t2, 1
+    blt $t2, $t0, count_loop
+
+    # Print the count of elements in the given range
+    li $v0, 4
+    la $a0, countMessage
+    syscall
+    move $a0, $t6
     li $v0, 1
     syscall
 
@@ -105,10 +120,3 @@ main:
     # Exit the program
     li $v0, 10
     syscall
-
-# Custom subroutine to calculate absolute value
-abs:
-    bgez $a0, no_negate
-    negu $a0, $a0
-    no_negate:
-    jr $ra
