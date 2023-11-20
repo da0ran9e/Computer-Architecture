@@ -1,9 +1,8 @@
 .data
     prompt:         .asciiz "Enter the number of elements in the array: "
     arrayPrompt:    .asciiz "Enter element "
-    rangePrompt:    .asciiz "Enter the lower and upper bounds: "
-    countMessage:   .asciiz "The number of elements between the given range is: "
-    invalidRange:   .asciiz "Invalid range! Please enter valid lower and upper bounds."
+    maxMessage:     .asciiz "The maximum element is: "
+    nearestPrompt:  .asciiz "Enter two numbers to find the nearest indices: "
 
 .text
 main:
@@ -64,59 +63,88 @@ main:
     # Check if all elements have been read
     bne $t2, $t0, read_loop
 
-    # Prompt for lower and upper bounds
+    # Print the maximum element
     li $v0, 4
-    la $a0, rangePrompt
+    la $a0, maxMessage
     syscall
-
-    # Read lower bound
-    li $v0, 5
-    syscall
-    move $t4, $v0
-
-    # Read upper bound
-    li $v0, 5
-    syscall
-    move $t5, $v0
-
-    # Check if the range is valid
-    bge $t5, $t4, valid_range
-    li $v0, 4
-    la $a0, invalidRange
-    syscall
-    j end_program
-
-    valid_range:
-    # Initialize the count of elements in the given range
-    li $t6, 0
-
-    # Iterate through the array to count elements within the range
-    li $t2, 0 # Reset index to 0
-    count_loop:
-    lw $t7, 0($t1) # Load element from the array
-    bge $t7, $t4, check_upper_bound
-    j next_count_iteration
-
-    check_upper_bound:
-    ble $t7, $t5, increment_count
-    j next_count_iteration
-
-    increment_count:
-    addi $t6, $t6, 1
-
-    next_count_iteration:
-    addi $t2, $t2, 1
-    blt $t2, $t0, count_loop
-
-    # Print the count of elements in the given range
-    li $v0, 4
-    la $a0, countMessage
-    syscall
-    move $a0, $t6
+    move $a0, $t3
     li $v0, 1
+    syscall
+
+    # Prompt user to enter two additional numbers
+    li $v0, 4
+    la $a0, nearestPrompt
+    syscall
+
+    # Read the first additional number
+    li $v0, 5
+    syscall
+    move $t4, $v0 # $t4 = first additional number
+
+    # Read the second additional number
+    li $v0, 5
+    syscall
+    move $t5, $v0 # $t5 = second additional number
+
+    # Initialize variables for nearest indices
+    li $t6, 0      # $t6 = index of the first nearest element
+    li $t7, 1      # $t7 = index of the second nearest element
+    li $t8, 2147483647  # $t8 = minimum absolute difference for the first nearest element
+    li $t9, 2147483647  # $t9 = minimum absolute difference for the second nearest element
+
+    find_nearest_indices:
+    # Calculate the absolute difference between the current element and the first additional number
+    lw $s0, 0($t1)
+    sub $s0, $s0, $t4
+    abs $s0, $s0
+
+    # Update the first nearest index if a smaller absolute difference is found
+    blt $s0, $t8, update_first_nearest
+
+    # Calculate the absolute difference between the current element and the second additional number
+    lw $s1, 0($t1)
+    sub $s1, $s1, $t5
+    abs $s1, $s1
+
+    # Update the second nearest index if a smaller absolute difference is found
+    blt $s1, $t9, update_second_nearest
+
+    next_iteration_nearest:
+    # Move to the next index
+    addi $t2, $t2, 1
+
+    # Check if all elements have been processed
+    bne $t2, $t0, find_nearest_indices
+
+    # Print the indices of the nearest elements
+    li $v0, 4
+    move $a0, $t6
+    syscall
+
+    li $v0, 4
+    move $a0, $t7
     syscall
 
     end_program:
     # Exit the program
     li $v0, 10
     syscall
+
+# Custom subroutine to calculate absolute value
+abs:
+    bltz $a0, absolute_value_neg
+    jr $ra
+
+absolute_value_neg:
+    negu $a0, $a0
+    jr $ra
+
+update_first_nearest:
+    move $t8, $s0
+    move $t6, $t2
+    j next_iteration_nearest
+
+update_second_nearest:
+    move $t9, $s1
+    move $t7, $t2
+    j next_iteration_nearest
