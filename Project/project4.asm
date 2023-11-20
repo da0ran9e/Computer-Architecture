@@ -77,19 +77,13 @@ main:
     syscall
 
     # Prompt user to enter two additional numbers
+    input1:
     li $v0, 4
     la $a0, searchPrompt1
     syscall
     li $v0, 5
     syscall
     move $t4, $v0 # $t4 = first number to search
-
-    li $v0, 4
-    la $a0, searchPrompt2
-    syscall
-    li $v0, 5
-    syscall
-    move $t5, $v0 # $t5 = second number to search
 
     # Find the first index of the first number
     move $t6, $t1 # $t6 = address of the array
@@ -111,18 +105,25 @@ main:
     move $a0, $t7
     li $v0, 1
     syscall
-
-    not_found1:
+    
     # Find the first index of the second number
+    
     move $t6, $t1 # Reset the address of the array
-    li $t7, 0     # Reset the current index
+    
+    input2:
+    li $v0, 4
+    la $a0, searchPrompt2
+    syscall
+    li $v0, 5
+    syscall
+    move $t5, $v0 # $t5 = second number to search
 
     search_loop2:
     lw $t8, 0($t6) # Load the current element from the array
     beq $t8, $t5, found_second
     addi $t6, $t6, 4 # Move to the next element in the array
-    addi $t7, $t7, 1 # Increment the current index
-    bne $t7, $t0, search_loop2
+    addi $t9, $t9, 1 # Increment the current index
+    bne $t9, $t0, search_loop2
     j not_found2
 
     found_second:
@@ -130,12 +131,23 @@ main:
     li $v0, 4
     la $a0, indexMessage2
     syscall
-    move $a0, $t7
+    move $a0, $t9
     li $v0, 1
     syscall
-
-    not_found2:
+    
     end_program:
     # Exit the program
     li $v0, 10
     syscall
+
+    not_found1:
+    li $v0, 4
+    la $a0, notFoundMessage
+    syscall
+    j input1
+    
+    not_found2:
+    li $v0, 4
+    la $a0, notFoundMessage
+    syscall
+    j input2
