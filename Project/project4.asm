@@ -1,12 +1,9 @@
 .data
     prompt:         .asciiz "Enter the number of elements in the array: "
     arrayPrompt:    .asciiz "Enter element "
+    findPrompt:     .asciiz "Enter the number to find: "
     maxMessage:     .asciiz "The maximum element is: "
-    searchPrompt1:  .asciiz "Enter the first number to search: "
-    searchPrompt2:  .asciiz "Enter the second number to search: "
-    indexMessage1:  .asciiz "The first number is found at index: "
-    indexMessage2:  .asciiz "The second number is found at index: "
-    notFoundMessage: .asciiz "Number not found in the array."
+    indexMessage:   .asciiz "The first index of the number is: "
 
 .text
 main:
@@ -37,7 +34,7 @@ main:
     li $t2, 0      # $t2 = current index
     li $t3, -99999 # $t3 = max element, initialize with a small value
 
-    # Read elements into the array
+    # Read array elements
     read_loop:
     # Prompt for array element
     li $v0, 4
@@ -76,78 +73,49 @@ main:
     li $v0, 1
     syscall
 
-    # Prompt user to enter two additional numbers
-    input1:
+    # Prompt user to enter another number to find
     li $v0, 4
-    la $a0, searchPrompt1
+    la $a0, findPrompt
     syscall
+
+    # Read the number to find
     li $v0, 5
     syscall
-    move $t4, $v0 # $t4 = first number to search
+    move $t4, $v0 # $t4 = number to find
 
-    # Find the first index of the first number
-    move $t6, $t1 # $t6 = address of the array
-    li $t7, 0     # $t7 = current index
+    # Search for the first index of the number in the array
+    li $t2, 0       # Reset the index
+    li $t5, -1      # Initialize the index of the number to find
+    find_loop:
+    lw $t6, 0($t1)  # Load the current element from the array
 
-    search_loop1:
-    lw $t8, 0($t6) # Load the current element from the array
-    beq $t8, $t4, found_first
-    addi $t6, $t6, 4 # Move to the next element in the array
-    addi $t7, $t7, 1 # Increment the current index
-    bne $t7, $t0, search_loop1
-    j not_found1
+    # Compare with the number to find
+    bne $t6, $t4, not_found
 
-    found_first:
-    # Print the index of the first number
+    # Store the index if it's the first occurrence
+    beq $t5, -1, store_index
+
+    not_found:
+    # Move to the next index
+    addi $t2, $t2, 1
+
+    # Check if all elements have been searched
+    bne $t2, $t0, find_loop
+
+    # Print the index of the number to find
     li $v0, 4
-    la $a0, indexMessage1
+    la $a0, indexMessage
     syscall
-    move $a0, $t7
+    move $a0, $t5
     li $v0, 1
     syscall
-    
-    # Find the first index of the second number
-    
-    move $t6, $t1 # Reset the address of the array
-    
-    input2:
-    li $v0, 4
-    la $a0, searchPrompt2
-    syscall
-    li $v0, 5
-    syscall
-    move $t5, $v0 # $t5 = second number to search
 
-    search_loop2:
-    lw $t8, 0($t6) # Load the current element from the array
-    beq $t8, $t5, found_second
-    addi $t6, $t6, 4 # Move to the next element in the array
-    addi $t9, $t9, 1 # Increment the current index
-    bne $t9, $t0, search_loop2
-    j not_found2
-
-    found_second:
-    # Print the index of the second number
-    li $v0, 4
-    la $a0, indexMessage2
-    syscall
-    move $a0, $t9
-    li $v0, 1
-    syscall
-    
     end_program:
     # Exit the program
     li $v0, 10
     syscall
 
-    not_found1:
-    li $v0, 4
-    la $a0, notFoundMessage
-    syscall
-    j input1
-    
-    not_found2:
-    li $v0, 4
-    la $a0, notFoundMessage
-    syscall
-    j input2
+    store_index:
+    # Store the current index as the first occurrence
+    move $t5, $t2
+    j not_found
