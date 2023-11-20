@@ -2,7 +2,11 @@
     prompt:         .asciiz "Enter the number of elements in the array: "
     arrayPrompt:    .asciiz "Enter element "
     maxMessage:     .asciiz "The maximum element is: "
-    nearestPrompt:  .asciiz "Enter two numbers to find the nearest indices: "
+    searchPrompt1:  .asciiz "Enter the first number to search: "
+    searchPrompt2:  .asciiz "Enter the second number to search: "
+    indexMessage1:  .asciiz "The first number is found at index: "
+    indexMessage2:  .asciiz "The second number is found at index: "
+    notFoundMessage: .asciiz "Number not found in the array."
 
 .text
 main:
@@ -33,6 +37,7 @@ main:
     li $t2, 0      # $t2 = current index
     li $t3, -99999 # $t3 = max element, initialize with a small value
 
+    # Read elements into the array
     read_loop:
     # Prompt for array element
     li $v0, 4
@@ -73,78 +78,64 @@ main:
 
     # Prompt user to enter two additional numbers
     li $v0, 4
-    la $a0, nearestPrompt
+    la $a0, searchPrompt1
     syscall
-
-    # Read the first additional number
     li $v0, 5
     syscall
-    move $t4, $v0 # $t4 = first additional number
+    move $t4, $v0 # $t4 = first number to search
 
-    # Read the second additional number
+    li $v0, 4
+    la $a0, searchPrompt2
+    syscall
     li $v0, 5
     syscall
-    move $t5, $v0 # $t5 = second additional number
+    move $t5, $v0 # $t5 = second number to search
 
-    # Initialize variables for nearest indices
-    li $t6, 0      # $t6 = index of the first nearest element
-    li $t7, 1      # $t7 = index of the second nearest element
-    li $t8, 2147483647  # $t8 = minimum absolute difference for the first nearest element
-    li $t9, 2147483647  # $t9 = minimum absolute difference for the second nearest element
+    # Find the first index of the first number
+    move $t6, $t1 # $t6 = address of the array
+    li $t7, 0     # $t7 = current index
 
-    find_nearest_indices:
-    # Calculate the absolute difference between the current element and the first additional number
-    lw $s0, 0($t1)
-    sub $s0, $s0, $t4
-    abs $s0, $s0
+    search_loop1:
+    lw $t8, 0($t6) # Load the current element from the array
+    beq $t8, $t4, found_first
+    addi $t6, $t6, 4 # Move to the next element in the array
+    addi $t7, $t7, 1 # Increment the current index
+    bne $t7, $t0, search_loop1
+    j not_found1
 
-    # Update the first nearest index if a smaller absolute difference is found
-    blt $s0, $t8, update_first_nearest
-
-    # Calculate the absolute difference between the current element and the second additional number
-    lw $s1, 0($t1)
-    sub $s1, $s1, $t5
-    abs $s1, $s1
-
-    # Update the second nearest index if a smaller absolute difference is found
-    blt $s1, $t9, update_second_nearest
-
-    next_iteration_nearest:
-    # Move to the next index
-    addi $t2, $t2, 1
-
-    # Check if all elements have been processed
-    bne $t2, $t0, find_nearest_indices
-
-    # Print the indices of the nearest elements
+    found_first:
+    # Print the index of the first number
     li $v0, 4
-    move $a0, $t6
+    la $a0, indexMessage1
     syscall
-
-    li $v0, 4
     move $a0, $t7
+    li $v0, 1
     syscall
 
+    not_found1:
+    # Find the first index of the second number
+    move $t6, $t1 # Reset the address of the array
+    li $t7, 0     # Reset the current index
+
+    search_loop2:
+    lw $t8, 0($t6) # Load the current element from the array
+    beq $t8, $t5, found_second
+    addi $t6, $t6, 4 # Move to the next element in the array
+    addi $t7, $t7, 1 # Increment the current index
+    bne $t7, $t0, search_loop2
+    j not_found2
+
+    found_second:
+    # Print the index of the second number
+    li $v0, 4
+    la $a0, indexMessage2
+    syscall
+    move $a0, $t7
+    li $v0, 1
+    syscall
+
+    not_found2:
     end_program:
     # Exit the program
     li $v0, 10
     syscall
-
-# Custom subroutine to calculate absolute value
-abs:
-    bltz $a0, absolute_value_neg
-    jr $ra
-
-absolute_value_neg:
-    negu $a0, $a0
-    jr $ra
-
-update_first_nearest:
-    move $t8, $s0
-    move $t6, $t2
-    j next_iteration_nearest
-
-update_second_nearest:
-    move $t9, $s1
-    move $t7, $t2
-    j next_iteration_nearest
