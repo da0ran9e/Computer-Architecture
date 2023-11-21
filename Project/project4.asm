@@ -1,142 +1,121 @@
 .data
-    prompt:     .asciiz "Enter the size of the array: "
-    arrayPrompt: .asciiz "Enter element "
-    rangePrompt: .asciiz "Enter the lower and upper bounds of the range (m M): "
-    resultMsg:  .asciiz "Maximum element: "
-    countMsg:   .asciiz "Number of elements in the specified range: "
+    prompt:         .asciiz "Enter the number of elements in the array: "
+    arrayPrompt:    .asciiz "Enter element "
+    findPrompt:     .asciiz "Enter the number to find: "
+    maxMessage:     .asciiz "The maximum element is: "
+    indexMessage:   .asciiz "The first index of the number is: "
 
 .text
-    # Main program
-    main:
-        li      $v0, 4                   # Print prompt for array size
-        la      $a0, prompt
-        syscall
+main:
+    # Prompt for the number of elements in the array
+    li $v0, 4
+    la $a0, prompt
+    syscall
 
-        li      $v0, 5                   # Read array size from the user
-        syscall
-        move    $t0, $v0                 # $t0 = array size
+    # Read the number of elements
+    li $v0, 5
+    syscall
+    move $t0, $v0 # $t0 = number of elements
 
-        # Dynamically allocate space for the array on the stack
-        sub     $sp, $sp, 4*$t0
+    # Check if the array is empty
+    beq $t0, $zero, end_program
 
-        # Read array elements from the user
-        la      $t1, 0($sp)               # $t1 points to the base of the array
-        la      $a0, arrayPrompt
-        move    $a1, $t0                 # Number of elements to read
-        jal     readArray
+    # Allocate space for the array on the stack
+    addi $sp, $sp, -4
+    sw $t0, 0($sp) # Save the number of elements on the stack
 
-        # Read range (m, M) from the user
-        li      $v0, 4
-        la      $a0, rangePrompt
-        syscall
+    # Dynamically allocate space for the array
+    li $v0, 9
+    move $a0, $t0
+    syscall
+    move $t1, $v0 # $t1 = address of the array
 
-        li      $v0, 5
-        syscall
-        move    $t2, $v0                 # $t2 = lower bound (m)
-        
-        li      $v0, 5
-        syscall
-        move    $t3, $v0                 # $t3 = upper bound (M)
+    # Initialize variables
+    li $t2, 0      # $t2 = current index
+    li $t3, -99999 # $t3 = max element, initialize with a small value
 
-        # Find the maximum element in the array
-        la      $a0, 0($sp)               # $a0 points to the base of the array
-        move    $a1, $t0                 # Number of elements in the array
-        jal     findMax
+    # Read array elements
+    read_loop:
+    # Prompt for array element
+    li $v0, 4
+    la $a0, arrayPrompt
+    syscall
+    move $a0, $t2
+    li $v0, 1
+    syscall
 
-        # Print the maximum element
-        li      $v0, 4
-        la      $a0, resultMsg
-        syscall
+    # Read array element
+    li $v0, 5
+    syscall
+    sw $v0, 0($t1) # Store the element in the array
 
-        li      $v0, 1
-        move    $a0, $t4                 # Maximum element
-        syscall
+    # Compare with the current max
+    bge $v0, $t3, update_max
 
-        # Calculate the number of elements in the range (m, M)
-        la      $a0, 0($sp)               # $a0 points to the base of the array
-        move    $a1, $t0                 # Number of elements in the array
-        move    $a2, $t2                 # Lower bound (m)
-        move    $a3, $t3                 # Upper bound (M)
-        jal     countInRange
+    # Move to the next index
+    j next_iteration
 
-        # Print the count of elements in the range
-        li      $v0, 4
-        la      $a0, countMsg
-        syscall
+    update_max:
+    move $t3, $v0
 
-        li      $v0, 1
-        move    $a0, $t5                 # Count of elements in the range
-        syscall
+    next_iteration:
+    # Move to the next index
+    addi $t2, $t2, 1
 
-        # Exit program
-        li      $v0, 10
-        syscall
+    # Check if all elements have been read
+    bne $t2, $t0, read_loop
 
-    # Procedure to read an array from the user
-    readArray:
-        move    $t4, $a0                 # $t4 points to the base of the array
-    readLoop:
-        li      $v0, 4                   # Print prompt for array element
-        la      $a0, arrayPrompt
-        syscall
+    # Print the maximum element
+    li $v0, 4
+    la $a0, maxMessage
+    syscall
+    move $a0, $t3
+    li $v0, 1
+    syscall
 
-        li      $v0, 5                   # Read an element from the user
-        syscall
-        sw      $v0, 0($t4)               # Store the element in the array
-        addi    $t4, $t4, 4              # Move to the next element
+    # Prompt user to enter another number to find
+    li $v0, 4
+    la $a0, findPrompt
+    syscall
 
-        addi    $a1, $a1, -1             # Decrement the number of elements
-        bnez    $a1, readLoop            # Continue loop if more elements to read
-        jr      $ra
+    # Read the number to find
+    li $v0, 5
+    syscall
+    move $t4, $v0 # $t4 = number to find
 
-    # Procedure to find the maximum element in the array
-    findMax:
-        move    $t4, $a0                 # $t4 points to the base of the array
-        move    $t5, $t4                 # $t5 points to the current maximum
+    # Search for the first index of the number in the array
+    li $t2, 0       # Reset the index
+    li $t5, -1      # Initialize the index of the number to find
+    find_loop:
+    lw $t6, 0($t1)  # Load the current element from the array
 
-        li      $t6, 0                   # Initialize max index to 0
-        li      $t7, 0                   # Initialize max value to 0
+    # Compare with the number to find
+    bne $t6, $t4, not_found
 
-    maxLoop:
-        lw      $t8, 0($t4)               # Load the current element
-        ble     $t8, $t7, notGreater     # Skip if not greater than current max
+    # Store the index if it's the first occurrence
+    beq $t5, -1, store_index
 
-        # Update the maximum element and index
-        move    $t5, $t4                 # Update the pointer to current max
-        move    $t7, $t8                 # Update the max value
-        move    $t6, $t4                 # Update the max index
+    not_found:
+    # Move to the next index
+    addi $t2, $t2, 1
 
-    notGreater:
-        addi    $t4, $t4, 4              # Move to the next element
-        addi    $a1, $a1, -1             # Decrement the number of elements
-        bnez    $a1, maxLoop             # Continue loop if more elements to check
+    # Check if all elements have been searched
+    bne $t2, $t0, find_loop
 
-        # Store the maximum element, value, and index in $t4, $t5, $t6 respectively
-        sw      $t5, 0($t0)               # Store the pointer to the max element
-        sw      $t7, 4($t0)               # Store the max value
-        sw      $t6, 8($t0)               # Store the max index
-        jr      $ra
+    # Print the index of the number to find
+    li $v0, 4
+    la $a0, indexMessage
+    syscall
+    move $a0, $t5
+    li $v0, 1
+    syscall
 
-    # Procedure to count the number of elements in the range (m, M)
-    countInRange:
-        move    $t4, $a0                 # $t4 points to the base of the array
-        move    $t5, $a2                 # $t5 = lower bound (m)
-        move    $t6, $a3                 # $t6 = upper bound (M)
-        li      $t7, 0                   # Initialize count to 0
+    end_program:
+    # Exit the program
+    li $v0, 10
+    syscall
 
-    countLoop:
-        lw      $t8, 0($t4)               # Load the current element
-        blt     $t8, $t5, notInRange     # Skip if less than lower bound
-        bgt     $t8, $t6, notInRange     # Skip if greater than upper bound
-
-        # Increment the count if the element is in the range
-        addi    $t7, $t7, 1
-
-    notInRange:
-        addi    $t4, $t4, 4              # Move to the next element
-        addi    $a1, $a1, -1             # Decrement the number of elements
-        bnez    $a1, countLoop           # Continue loop if more elements to check
-
-        # Store the count in $t5
-        move    $t5, $t7
-        jr      $ra
+    store_index:
+    # Store the current index as the first occurrence
+    move $t5, $t2
+    j not_found
