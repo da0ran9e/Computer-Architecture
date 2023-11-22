@@ -101,7 +101,7 @@ main:
 #---------------------------------------------------------------------
 
     #run to the bottom of the stack
-    addi $sp,$sp,-4
+    #addi $sp,$sp,-4
     stack_loop:
     addi $sp,$sp,4 #adjust the stack 
     stack_pointer_iteration:
@@ -117,7 +117,7 @@ main:
     
     print_iteration:
     addi $t2, $t2, 1
-    bne $t2, $zero, print_loop
+    bne $t2, $t0, print_loop
     
     #begin input
     li $v0, 4
