@@ -99,6 +99,28 @@ main:
 #return $t7 the number of elements between n and m
 #---------------------------------------------------------------------
 
+    #run to the bottom of the stack
+    addi $sp,$sp,-4
+    stack_loop:
+    addi $sp,$sp,4 #adjust the stack 
+    stack_pointer_iteration:
+    addi $t2, $t2, -1
+    bne $t2, $zero, stack_loop
+    
+    #print 
+    print_loop:
+    lw $t6,4($sp) #pop the stack value to t6
+    addi $sp,$sp,-4 #adjust the stack pointer
+    
+    li $v0, 1
+    la $a0, $t6
+    syscall
+    
+    print_iteration:
+    addi $t2, $t2, 1
+    bne $t2, $zero, print_loop
+    
+    #begin input
     li $v0, 4
     la $a0, nInputMessage
     syscall
@@ -143,8 +165,8 @@ main:
     la $a0, notfoundMessage
     syscall
     
-    li $v0, 4
-    lw $a1, $t4
+    li $v0, 1
+    la $a1, $t4
     syscall
     
     li $v0, 4
@@ -156,8 +178,8 @@ main:
     la $a0, notfoundMessage
     syscall
     
-    li $v0, 4
-    lw $a1, $t5
+    li $v0, 1
+    la $a1, $t5
     syscall
     
     li $v0, 4
