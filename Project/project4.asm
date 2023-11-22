@@ -205,7 +205,7 @@ main:
         li $v0, 4
         la $a0, returnMessage2
         syscall
-        S
+        
         move $a0, $t5
         li $v0, 1
         syscall
