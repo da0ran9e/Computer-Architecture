@@ -2,8 +2,12 @@
     prompt:         	.asciiz "Enter the number of elements in the array: "
     arrayPrompt:    	.asciiz "Enter element "
     findPrompt:     	.asciiz "Enter the number to find: "
-    maxMessage:     	.asciiz "The maximum element is: "
-    indexMessage:   	.asciiz "The first index of the number is: "
+    maxMessage:     	.asciiz "\nThe maximum element is: "
+    nInputMessage:	.asciiz "\nEnter n: "
+    mInputMessage:	.asciiz "\nEnter m: "
+    returnMessage1:   	.asciiz "\nThe number of elements between "
+    returnMessage2:   	.asciiz " and "
+    returnMessage3:   	.asciiz " is: "
     endl:		.asciiz "\n"
 
 .text
@@ -85,76 +89,66 @@ main:
 
 #---------------------------------------------------------------------
 #Procedure distance: find the number of elements between 2 values
-#param[in] 	$t0 	integer	 	number of elements
-#		$t1 			address of the array
+#param[in] 	$t4 	integer	 	n
+#param[in] 	$t5	integer	 	m
+#		$t6 			current value
 # 		$t2			current index
-# 		$t3			max element
+#		$t7			number of elements between n and m
 #param[in] 
-#return $t3 the largest value
+#return $t7 the number of elements between n and m
 #---------------------------------------------------------------------
 
-
-	addi $sp,$sp,-4
-    pop_loop:
     li $v0, 4
-    la $a0, endl
+    la $a0, nInputMessage
     syscall
-
-    lw $a0,4($sp) #pop from stack to $s1
-    addi $sp,$sp,4 #adjust the stack pointer	
-    li $v0, 1
+    
+    # Read n
+    li $v0, 5
     syscall
+    move $t4, $v0 # $t4 = n
+    
+    li $v0, 4
+    la $a0, nInputMessage
+    syscall
+    
+    # Read m
+    li $v0, 5
+    syscall
+    move $t5, $v0 # $t5 = m
+    
+    #End of input
+    
+    addi $sp,$sp,-4
+    pop_loop:
+    lw $t6,4($sp) #pop the stack value to t6
+    addi $sp,$sp,4 #adjust the stack pointer
+    
+    beq $t6, $t7, check	
+    
+    addi $t7, $t7, 1
+    #if the value = m reset counter to 0
+    beq $t6, $t7, reset
     
     next_pop_iteration:
     # Move to the next index
     addi $t2, $t2, -1
-
-    # Check if all elements have been read
+    # Check if all elements have been pop
     bne $t2, $zero, pop_loop
     
+    check:
+    j return
+    
+    reset:
+    li $t7, 0
+    j pop_loop
+    
+    return:
+    li $v0, 4
+    la $a0, returnMessage1
+    syscall
     
     li $v0, 4
-    la $a0, findPrompt
+    lw $a1, $t7
     syscall
-
-    # Read the number to find
-    li $v0, 5
-    syscall
-    move $t4, $v0 # $t4 = number to find
-
-    # Search for the first index of the number in the array
-    li $t2, 0       # Reset the index
-    li $t5, -1      # Initialize the index of the number to find
-    find_loop:
-    lw $t6, 0($t1)  # Load the current element from the array
-
-    # Compare with the number to find
-    bne $t6, $t4, not_found
-
-    # Store the index if it's the first occurrence
-    beq $t5, -1, store_index
-
-    not_found:
-    # Move to the next index
-    addi $t2, $t2, 1
-
-    # Check if all elements have been searched
-    bne $t2, $t0, find_loop
-
-    # Print the index of the number to find
-    li $v0, 4
-    la $a0, indexMessage
-    syscall
-    move $a0, $t5
-    li $v0, 1
-    syscall
-
+    
     end_program:
-    # Exit the program
-    li $v0, 10
-    syscall
-
-    store_index:
-    # Store the current index as the first occurrence
-    move $t5, $t2
-    j not_found
