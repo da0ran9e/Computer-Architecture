@@ -101,7 +101,7 @@ main:
 #---------------------------------------------------------------------
 
     #run to the bottom of the stack
-    #addi $sp,$sp,-4
+    addi $sp,$sp,-8
     stack_loop:
     addi $sp,$sp,4 #adjust the stack 
     stack_pointer_iteration:
@@ -109,6 +109,10 @@ main:
     bne $t2, $zero, stack_loop
     
     #print 
+    li $v0, 4
+    la $a0, endl
+    syscall
+    
     print_loop:
     lw $a0,4($sp) #pop the stack value to t6
     addi $sp,$sp,-4 #adjust the stack pointer
