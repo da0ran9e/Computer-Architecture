@@ -1,6 +1,7 @@
 .data
     prompt:         	.asciiz "Enter the number of elements in the array: "
     arrayPrompt:    	.asciiz "Enter element "
+    colon:		.asciiz ": "
     findPrompt:     	.asciiz "Enter the number to find: "
     maxMessage:     	.asciiz "\nThe maximum element is: "
     nInputMessage:	.asciiz "\nEnter n: "
@@ -38,6 +39,10 @@ main:
     
     move $a0, $t2
     li $v0, 1
+    syscall
+    
+    li $v0, 4
+    la $a0, colon
     syscall
 
     # Read array element
