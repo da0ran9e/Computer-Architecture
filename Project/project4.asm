@@ -41,6 +41,7 @@ main:
     li $v0, 4
     la $a0, arrayPrompt
     syscall
+    
     move $a0, $t2
     li $v0, 1
     syscall
@@ -109,11 +110,9 @@ main:
     
     #print 
     print_loop:
-    lw $t6,4($sp) #pop the stack value to t6
+    lw $a0,4($sp) #pop the stack value to t6
     addi $sp,$sp,-4 #adjust the stack pointer
-    
     li $v0, 1
-    la $a0, $t6
     syscall
     
     print_iteration:
@@ -166,7 +165,7 @@ main:
     syscall
     
     li $v0, 1
-    la $a1, $t4
+    move $a1, $t4
     syscall
     
     li $v0, 4
@@ -179,7 +178,7 @@ main:
     syscall
     
     li $v0, 1
-    la $a1, $t5
+    move $a1, $t5
     syscall
     
     li $v0, 4
@@ -201,7 +200,7 @@ main:
     syscall
     
     li $v0, 4
-    lw $a1, $t7
+    move $a1, $t7
     syscall
     
     end_program:
