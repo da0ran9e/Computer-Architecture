@@ -26,12 +26,6 @@ main:
     # Check if the array is 0-size
     beq $t0, $zero, end_program
 
-    # Dynamically allocate space for the array
-    li $v0, 9
-    move $a0, $t0
-    syscall
-    move $t1, $v0 # $t1 = address of the array
-
     # Initialize variables
     li $t2, 0      # $t2 = current index
     li $t3, -99999 # $t3 = max element, initialize with a small value
@@ -107,11 +101,6 @@ main:
     addi $t2, $t2, -1
     bne $t2, $zero, stack_loop
     
-    #print 
-    li $v0, 4
-    la $a0, endl
-    syscall
-    
     #begin input
     li $v0, 4
     la $a0, nInputMessage
@@ -128,19 +117,14 @@ main:
     li $v0, 5
     syscall
     move $t5, $v0 # $t5 = m
-    
     #End of input
     
     #Find for values
-    
-    #find_n
     find_n_loop:
     lw $t1,4($sp) #pop the stack value to t1
     beq $t1, $t4, found_n
     
-    addi $sp,$sp,-4 #adjust the stack pointer
-    li $v0, 1
-    syscall
+    addi $sp,$sp,-4
 
     addi $t2, $t2, 1
     bne $t2, $t0, find_n_loop
@@ -170,8 +154,6 @@ main:
     beq $t1, $t5, found_m
     
     addi $sp,$sp,-4 #adjust the stack pointer
-    li $v0, 1
-    syscall
 
     addi $t2, $t2, 1
     bne $t2, $t0, find_m_loop
@@ -193,14 +175,31 @@ main:
     
     found_m:
     sub $t7, $t2, $t6
+    sub $t7, $t7, 1
     
     return:
     li $v0, 4
     la $a0, returnMessage1
     syscall
     
+    move $a0, $t4
     li $v0, 1
-    move $a1, $t7
+    syscall
+    
+    li $v0, 4
+    la $a0, returnMessage2
+    syscall
+    
+    move $a0, $t5
+    li $v0, 1
+    syscall
+    
+    li $v0, 4
+    la $a0, returnMessage3
+    syscall
+    
+    move $a0, $t7
+    li $v0, 1
     syscall
     
     end_program:
