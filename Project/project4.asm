@@ -1,68 +1,70 @@
 .data
     arraySize:         	.asciiz "Enter the number of elements in the array: "
     arrayPrompt:    	.asciiz "Enter element "
-    colon:		.asciiz ": "
+    colon:		        .asciiz ": "
     findPrompt:     	.asciiz "Enter the number to find: "
     maxMessage:     	.asciiz "\nThe maximum element is: "
-    nInputMessage:	.asciiz "\nEnter n: "
-    mInputMessage:	.asciiz "Enter m: "
+    nInputMessage:	    .asciiz "\nEnter n: "
+    mInputMessage:	    .asciiz "Enter m: "
     returnMessage1:   	.asciiz "The number of elements between "
     returnMessage2:   	.asciiz " and "
     returnMessage3:   	.asciiz " is: "
     notfoundMessage:  	.asciiz "\n Not found the value: "
-    endl:		.asciiz "\n"
+    endl:		        .asciiz "\n"
 
 .text
 main:
 #---------------------------------------------------------------------
 #@brief: 	Input a n-size-array and find the largest element
 #@param[in] 	$t0 	integer	 	number of elements
-# 		$t2			current index
-# 		$t3			max element
+# 		        $t2			        current index
+# 		        $t3			        max element
 #@return $t3 the largest value
-#@note
+#@note  - User input the size of the array (n) then enter n elements  
+#       of the array one by one. 
+#       - Use stack to store array elements.
+#       - With each input element, the max value will be checked and 
+#       update.
 #---------------------------------------------------------------------
     #enter the number of elements
-    li $v0, 4
-    la $a0, arraySize
-    syscall
+        li $v0, 4
+        la $a0, arraySize
+        syscall
 
-    li $v0, 5
-    syscall
-    move $t0, $v0 # $t0 = number of elements
+        li $v0, 5
+        syscall
+        move $t0, $v0 # $t0 (n) number of elements
 
-    # Check if the array is 0-size
-    beq $t0, $zero, end_program
+        beq $t0, $zero, end_program # Check if the array is 0-size
 
     # Initialize
-    li $t2, 0      # $t2 = current index
-    li $t3, -99999 # $t3 = max element, initialize with a small value
+        li $t2, 0      # $t2 = current index
+        li $t3, -99999 # $t3 = max element, initialize with a small value
 
-    # Read array elements
+    # read array elements
     read_loop:
-    li $v0, 4
-    la $a0, arrayPrompt
-    syscall
-    
-    move $a0, $t2
-    li $v0, 1
-    syscall
-    
-    li $v0, 4
-    la $a0, colon
-    syscall
+        li $v0, 4
+        la $a0, arrayPrompt 
+        syscall
+        
+        move $a0, $t2
+        li $v0, 1
+        syscall
+        
+        li $v0, 4
+        la $a0, colon
+        syscall
 
-    # Read array element
-    li $v0, 5
-    syscall
+        li $v0, 5 # read the input
+        syscall
     
-    # Allocate space for the array on the stack
+    # push value to the stack
     push:
-    addi $sp, $sp, -4
-    sw $v0, 0($sp) # Save the element on the stack
+        addi $sp, $sp, -4
+        sw $v0, 0($sp) # Save the element on the stack
 
-    # Compare with the current max
-    bge $v0, $t3, update_max
+        # Compare with the current max
+        bge $v0, $t3, update_max
 
     # Move to the next index
     j next_read_iteration
