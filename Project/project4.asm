@@ -8,6 +8,7 @@
     returnMessage1:   	.asciiz "\nThe number of elements between "
     returnMessage2:   	.asciiz " and "
     returnMessage3:   	.asciiz " is: "
+    notfoundMessage:  	.asciiz "\n Not found the value: "
     endl:		.asciiz "\n"
 
 .text
@@ -75,7 +76,6 @@ main:
     next_read_iteration:
     # Move to the next index
     addi $t2, $t2, 1
-
     # Check if all elements have been read
     bne $t2, $t0, read_loop
 
@@ -89,10 +89,11 @@ main:
 
 #---------------------------------------------------------------------
 #Procedure distance: find the number of elements between 2 values
+#	 	$t0 	integer	 	number of elements
+# 		$t2			current index
 #param[in] 	$t4 	integer	 	n
 #param[in] 	$t5	integer	 	m
 #		$t6 			current value
-# 		$t2			current index
 #		$t7			number of elements between n and m
 #param[in] 
 #return $t7 the number of elements between n and m
@@ -123,17 +124,47 @@ main:
     lw $t6,4($sp) #pop the stack value to t6
     addi $sp,$sp,4 #adjust the stack pointer
     
-    beq $t6, $t7, check	
+    beq $t6, $t4, check	
     
     addi $t7, $t7, 1
     #if the value = m reset counter to 0
-    beq $t6, $t7, reset
+    beq $t6, $t5, reset
     
     next_pop_iteration:
     # Move to the next index
     addi $t2, $t2, -1
     # Check if all elements have been pop
     bne $t2, $zero, pop_loop
+    
+    beq $t7, $t0, not_found_m
+    
+    not_found_n:
+    li $v0, 4
+    la $a0, notfoundMessage
+    syscall
+    
+    li $v0, 4
+    lw $a1, $t4
+    syscall
+    
+    li $v0, 4
+    la $a0, endl
+    syscall
+    
+    not_found_m:
+    li $v0, 4
+    la $a0, notfoundMessage
+    syscall
+    
+    li $v0, 4
+    lw $a1, $t5
+    syscall
+    
+    li $v0, 4
+    la $a0, endl
+    syscall
+    
+    j end_program
     
     check:
     j return
