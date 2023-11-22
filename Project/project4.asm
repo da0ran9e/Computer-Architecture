@@ -63,7 +63,7 @@ main:
         sw $v0, 0($sp) # Save the element on the stack
 
     # compare with the current max
-        bge $v0, $t3, update_max 
+        bgt $v0, $t3, update_max 
 
     # move to the next index
         j next_read_iteration
