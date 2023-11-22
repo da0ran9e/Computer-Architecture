@@ -24,7 +24,7 @@ main:
 #       of the array one by one. 
 #       - Use stack to store array elements.
 #       - With each input element, the max value will be checked and 
-#       update.
+#       updated.
 #---------------------------------------------------------------------
     #enter the number of elements
         li $v0, 4
@@ -59,44 +59,51 @@ main:
         syscall
     
     # push value to the stack
-    push:
-        addi $sp, $sp, -4
+        addi $sp, $sp, -4 # adjust the stack pointer to for 1 word (4 bytes)
         sw $v0, 0($sp) # Save the element on the stack
 
-        # Compare with the current max
-        bge $v0, $t3, update_max
+    # compare with the current max
+        bge $v0, $t3, update_max 
 
-    # Move to the next index
-    j next_read_iteration
+    # move to the next index
+        j next_read_iteration
 
     update_max:
-    move $t3, $v0
+        move $t3, $v0 #update the max value
 
     next_read_iteration:
-    # Move to the next index
-    addi $t2, $t2, 1
-    # Check if all elements have been read
-    bne $t2, $t0, read_loop
+        addi $t2, $t2, 1 # index++
+        # check if all elements have been read
+        bne $t2, $t0, read_loop
 
     # Print the maximum element
-    li $v0, 4
-    la $a0, maxMessage
-    syscall
-    move $a0, $t3
-    li $v0, 1
-    syscall
+        li $v0, 4
+        la $a0, maxMessage
+        syscall
+
+        move $a0, $t3 # print max
+        li $v0, 1
+        syscall
 
 #---------------------------------------------------------------------
-#Procedure distance: find the number of elements between 2 values
-#	 	$t0 	integer	 	number of elements
-#		$t1			current value
-# 		$t2			current index
-#param[in] 	$t4 	integer	 	n
-#param[in] 	$t5	integer	 	m
-#		$t6 			found n index
-#		$t7			number of elements between n and m
-#param[in] 
-#return $t7 the number of elements between n and m
+#@brief Find the number of elements between 2 values
+#	 	        $t0 	integer	 	number of elements
+#		        $t1			        current value
+# 		        $t2			        current index
+#@param[in] 	$t4 	integer	 	n
+#@param[in] 	$t5	    integer	 	m
+#		        $t6 			    found n index
+#		        $t7			        number of elements between n and m
+#@return $t7 the number of elements between n and m
+#@note  - After pushing values to the stack, the stack pointer is at  
+#       the top of the stack, move the pointer back to the end of the 
+#       stack to read from the begin of the array.
+#       - User input 2 integer m and M
+#       - The program read the array from begin to the end to find m
+#       if m is found, save the index of m then find M on the rest of
+#       the array, if M found then the number of elements between
+#       m and M will be calculated by: <index of M> - <index of m> - 1
+#       - If any value of m or M is not found then exit the program
 #---------------------------------------------------------------------
 
     #run to the bottom of the stack
