@@ -1,13 +1,14 @@
 .data
-    prompt:         .asciiz "Enter the number of elements in the array: "
-    arrayPrompt:    .asciiz "Enter element "
-    findPrompt:     .asciiz "Enter the number to find: "
-    maxMessage:     .asciiz "The maximum element is: "
-    indexMessage:   .asciiz "The first index of the number is: "
+    prompt:         	.asciiz "Enter the number of elements in the array: "
+    arrayPrompt:    	.asciiz "Enter element "
+    findPrompt:     	.asciiz "Enter the number to find: "
+    maxMessage:     	.asciiz "The maximum element is: "
+    indexMessage:   	.asciiz "The first index of the number is: "
+    endl:		.asciiz "\n"
 
 .text
 main:
-    # Prompt for the number of elements in the array
+    # the number of elements
     li $v0, 4
     la $a0, prompt
     syscall
@@ -17,13 +18,8 @@ main:
     syscall
     move $t0, $v0 # $t0 = number of elements
 
-    # Check if the array is empty
+    # Check if the array is 0-size
     beq $t0, $zero, end_program
-
-    # Allocate space for the array on the stack
-    push:
-    addi $sp, $sp, -4
-    sw $t0, 0($sp) # Save the number of elements on the stack
 
     # Dynamically allocate space for the array
     li $v0, 9
@@ -37,7 +33,6 @@ main:
 
     # Read array elements
     read_loop:
-    # Prompt for array element
     li $v0, 4
     la $a0, arrayPrompt
     syscall
@@ -49,17 +44,31 @@ main:
     li $v0, 5
     syscall
     sw $v0, 0($t1) # Store the element in the array
+    
+    # Allocate space for the array on the stack
+    push:
+    addi $sp, $sp, -4
+    sw $v0, 0($sp) # Save the element on the stack
 
     # Compare with the current max
     bge $v0, $t3, update_max
 
     # Move to the next index
-    j next_iteration
+    j next_read_iteration
+#---------------------------------------------------------------------
+#Procedure max: find the largest integer
+#param[in] 	$t0 	integer	 	number of elements
+#		$t1 			address of the array
+# 		$t2			current index
+# 		$t3			max element
+#param[in] 
+#return $t3 the largest value
+#---------------------------------------------------------------------
 
     update_max:
     move $t3, $v0
 
-    next_iteration:
+    next_read_iteration:
     # Move to the next index
     addi $t2, $t2, 1
 
@@ -74,7 +83,36 @@ main:
     li $v0, 1
     syscall
 
-    # Prompt user to enter another number to find
+#---------------------------------------------------------------------
+#Procedure distance: find the number of elements between 2 values
+#param[in] 	$t0 	integer	 	number of elements
+#		$t1 			address of the array
+# 		$t2			current index
+# 		$t3			max element
+#param[in] 
+#return $t3 the largest value
+#---------------------------------------------------------------------
+
+
+	addi $sp,$sp,-4
+    pop_loop:
+    li $v0, 4
+    la $a0, endl
+    syscall
+
+    lw $a0,4($sp) #pop from stack to $s1
+    addi $sp,$sp,4 #adjust the stack pointer	
+    li $v0, 1
+    syscall
+    
+    next_pop_iteration:
+    # Move to the next index
+    addi $t2, $t2, -1
+
+    # Check if all elements have been read
+    bne $t2, $zero, pop_loop
+    
+    
     li $v0, 4
     la $a0, findPrompt
     syscall
