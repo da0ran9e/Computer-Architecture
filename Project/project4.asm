@@ -21,6 +21,7 @@ main:
     beq $t0, $zero, end_program
 
     # Allocate space for the array on the stack
+    push:
     addi $sp, $sp, -4
     sw $t0, 0($sp) # Save the number of elements on the stack
 
