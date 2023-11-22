@@ -1,24 +1,24 @@
 .data
     arraySize:         	.asciiz "Enter the number of elements in the array: "
     arrayPrompt:    	.asciiz "Enter element "
-    colon:		        .asciiz ": "
+    colon:		.asciiz ": "
     findPrompt:     	.asciiz "Enter the number to find: "
     maxMessage:     	.asciiz "\nThe maximum element is: "
-    mInputMessage:	    .asciiz "\nEnter n: "
-    MInputMessage:	    .asciiz "Enter m: "
+    mInputMessage:	.asciiz "\nEnter n: "
+    MInputMessage:	.asciiz "Enter m: "
     returnMessage1:   	.asciiz "The number of elements between "
     returnMessage2:   	.asciiz " and "
     returnMessage3:   	.asciiz " is: "
     notfoundMessage:  	.asciiz "\n Not found the value: "
-    endl:		        .asciiz "\n"
+    endl:		.asciiz "\n"
 
 .text
 main:
 #---------------------------------------------------------------------
 #@brief: 	Input a n-size-array and find the largest element
 #@param[in] 	$t0 	integer	 	number of elements
-# 		        $t2			        current index
-# 		        $t3			        max element
+# 		$t2			current index
+# 		$t3			max element
 #@return $t3 the largest value
 #@note  - User input the size of the array (n) then enter n elements  
 #       of the array one by one. 
@@ -87,14 +87,14 @@ main:
 
 #---------------------------------------------------------------------
 #@brief Find the number of elements between 2 values
-#	 	        $t0 	integer	 	number of elements
-#		        $t1			        current value
-# 		        $t2			        current index
-#@param[in] 	$t4 	integer	 	n
-#@param[in] 	$t5	    integer	 	m
-#		        $t6 			    found n index
-#		        $t7			        number of elements between n and m
-#@return $t7 the number of elements between n and m
+#	 	$t0 	integer	 	number of elements
+#		$t1			current value
+# 		$t2			current index
+#@param[in] 	$t4 	integer	 	m
+#@param[in] 	$t5	integer	 	M
+#		$t6 			found m index
+#		$t7			number of elements between m and M
+#@return $t7 the number of elements between m and M
 #@note  - After pushing values to the stack, the stack pointer is at  
 #       the top of the stack, move the pointer back to the end of the 
 #       stack to read from the begin of the array.
