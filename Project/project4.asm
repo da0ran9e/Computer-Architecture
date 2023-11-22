@@ -1,5 +1,5 @@
 .data
-    prompt:         	.asciiz "Enter the number of elements in the array: "
+    arraySize:         	.asciiz "Enter the number of elements in the array: "
     arrayPrompt:    	.asciiz "Enter element "
     colon:		.asciiz ": "
     findPrompt:     	.asciiz "Enter the number to find: "
@@ -14,12 +14,19 @@
 
 .text
 main:
-    # the number of elements
+#---------------------------------------------------------------------
+#@brief: 	Input a n-size-array and find the largest element
+#@param[in] 	$t0 	integer	 	number of elements
+# 		$t2			current index
+# 		$t3			max element
+#@return $t3 the largest value
+#@note
+#---------------------------------------------------------------------
+    #enter the number of elements
     li $v0, 4
-    la $a0, prompt
+    la $a0, arraySize
     syscall
 
-    # Read the number of elements
     li $v0, 5
     syscall
     move $t0, $v0 # $t0 = number of elements
@@ -27,7 +34,7 @@ main:
     # Check if the array is 0-size
     beq $t0, $zero, end_program
 
-    # Initialize variables
+    # Initialize
     li $t2, 0      # $t2 = current index
     li $t3, -99999 # $t3 = max element, initialize with a small value
 
@@ -59,14 +66,6 @@ main:
 
     # Move to the next index
     j next_read_iteration
-#---------------------------------------------------------------------
-#Procedure max: find the largest integer
-#param[in] 	$t0 	integer	 	number of elements
-# 		$t2			current index
-# 		$t3			max element
-#param[in] 
-#return $t3 the largest value
-#---------------------------------------------------------------------
 
     update_max:
     move $t3, $v0
@@ -139,8 +138,8 @@ main:
     la $a0, notfoundMessage
     syscall
     
+    move $a0, $t4
     li $v0, 1
-    move $a1, $t4
     syscall
     
     li $v0, 4
@@ -168,8 +167,8 @@ main:
     la $a0, notfoundMessage
     syscall
     
+    move $a0, $t5
     li $v0, 1
-    move $a1, $t5
     syscall
     
     li $v0, 4
