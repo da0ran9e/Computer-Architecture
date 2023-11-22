@@ -99,7 +99,7 @@ main:
 #       the top of the stack, move the pointer back to the end of the 
 #       stack to read from the begin of the array.
 #       - User input 2 integer m and M
-#       - The program read the array from begin to the end to find m
+#       - The program read the array from beginning to the end to find m
 #       if m is found, save the index of m then find M on the rest of
 #       the array, if M found then the number of elements between
 #       m and M will be calculated by: <index of M> - <index of m> - 1
@@ -205,7 +205,7 @@ main:
         li $v0, 4
         la $a0, returnMessage2
         syscall
-        
+        S
         move $a0, $t5
         li $v0, 1
         syscall
