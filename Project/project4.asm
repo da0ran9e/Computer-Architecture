@@ -49,7 +49,6 @@ main:
     # Read array element
     li $v0, 5
     syscall
-    sw $v0, 0($t1) # Store the element in the array
     
     # Allocate space for the array on the stack
     push:
@@ -64,7 +63,6 @@ main:
 #---------------------------------------------------------------------
 #Procedure max: find the largest integer
 #param[in] 	$t0 	integer	 	number of elements
-#		$t1 			address of the array
 # 		$t2			current index
 # 		$t3			max element
 #param[in] 
@@ -91,10 +89,11 @@ main:
 #---------------------------------------------------------------------
 #Procedure distance: find the number of elements between 2 values
 #	 	$t0 	integer	 	number of elements
+#		$t1			current value
 # 		$t2			current index
 #param[in] 	$t4 	integer	 	n
 #param[in] 	$t5	integer	 	m
-#		$t6 			current value
+#		$t6 			found n index
 #		$t7			number of elements between n and m
 #param[in] 
 #return $t7 the number of elements between n and m
@@ -113,55 +112,38 @@ main:
     la $a0, endl
     syscall
     
-    print_loop:
-    lw $a0,4($sp) #pop the stack value to t6
-    addi $sp,$sp,-4 #adjust the stack pointer
-    li $v0, 1
-    syscall
-    
-    print_iteration:
-    addi $t2, $t2, 1
-    bne $t2, $t0, print_loop
-    
     #begin input
     li $v0, 4
     la $a0, nInputMessage
     syscall
     
-    # Read n
     li $v0, 5
     syscall
     move $t4, $v0 # $t4 = n
     
     li $v0, 4
-    la $a0, nInputMessage
+    la $a0, mInputMessage
     syscall
     
-    # Read m
     li $v0, 5
     syscall
     move $t5, $v0 # $t5 = m
     
     #End of input
     
-    addi $sp,$sp,-4
-    pop_loop:
-    lw $t6,4($sp) #pop the stack value to t6
-    addi $sp,$sp,4 #adjust the stack pointer
+    #Find for values
     
-    beq $t6, $t4, check	
+    #find_n
+    find_n_loop:
+    lw $t1,4($sp) #pop the stack value to t1
+    beq $t1, $t4, found_n
     
-    addi $t7, $t7, 1
-    #if the value = m reset counter to 0
-    beq $t6, $t5, reset
-    
-    next_pop_iteration:
-    # Move to the next index
-    addi $t2, $t2, -1
-    # Check if all elements have been pop
-    bne $t2, $zero, pop_loop
-    
-    beq $t7, $t0, not_found_m
+    addi $sp,$sp,-4 #adjust the stack pointer
+    li $v0, 1
+    syscall
+
+    addi $t2, $t2, 1
+    bne $t2, $t0, find_n_loop
     
     not_found_n:
     li $v0, 4
@@ -175,6 +157,24 @@ main:
     li $v0, 4
     la $a0, endl
     syscall
+    
+    j end_program
+    
+    found_n:
+    move $t6, $t2 #save the found index to $t6
+    j find_m_loop
+    
+    #find m
+    find_m_loop:
+    lw $t1,4($sp) #pop the stack value to t1
+    beq $t1, $t5, found_m
+    
+    addi $sp,$sp,-4 #adjust the stack pointer
+    li $v0, 1
+    syscall
+
+    addi $t2, $t2, 1
+    bne $t2, $t0, find_m_loop
     
     not_found_m:
     li $v0, 4
@@ -191,19 +191,15 @@ main:
     
     j end_program
     
-    check:
-    j return
-    
-    reset:
-    li $t7, 0
-    j pop_loop
+    found_m:
+    sub $t7, $t2, $t6
     
     return:
     li $v0, 4
     la $a0, returnMessage1
     syscall
     
-    li $v0, 4
+    li $v0, 1
     move $a1, $t7
     syscall
     
