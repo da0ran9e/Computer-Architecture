@@ -4,6 +4,7 @@
     colon:		.asciiz ": "
     findPrompt:     	.asciiz "Enter the number to find: "
     maxMessage:     	.asciiz "\nThe maximum element is: "
+    minMessage:     	.asciiz "\nThe minimum element is: "
     mInputMessage:	.asciiz "\nEnter n: "
     MInputMessage:	.asciiz "Enter m: "
     returnMessage1:   	.asciiz "The number of elements between "
@@ -17,6 +18,7 @@ main:
 #---------------------------------------------------------------------
 #@brief: 	Input a n-size-array and find the largest element
 #@param[in] 	$t0 	integer	 	number of elements
+#		$t1			min element
 # 		$t2			current index
 # 		$t3			max element
 #@return $t3 the largest value
@@ -38,6 +40,7 @@ main:
         beq $t0, $zero, end_program # Check if the array is 0-size
 
     # Initialize
+    	li $t1, 99999 # $t1 = min element
         li $t2, 0      # $t2 = current index
         li $t3, -99999 # $t3 = max element, initialize with a small value
 
@@ -63,13 +66,19 @@ main:
         sw $v0, 0($sp) # Save the element on the stack
 
     # compare with the current max
-        bgt $v0, $t3, update_max 
+    	#bgt $v0, $t3, update_max 
+    	
+        blt $v0, $t1, update_min
 
     # move to the next index
         j next_read_iteration
 
     update_max:
         move $t3, $v0 #update the max value
+        j next_read_iteration
+        
+    update_min:
+        move $t1, $v0 # update the min value
 
     next_read_iteration:
         addi $t2, $t2, 1 # index++
@@ -77,11 +86,12 @@ main:
         bne $t2, $t0, read_loop
 
     # Print the maximum element
+        
         li $v0, 4
-        la $a0, maxMessage
+        la $a0, minMessage
         syscall
 
-        move $a0, $t3 # print max
+        move $a0, $t1 # print min
         li $v0, 1
         syscall
 
