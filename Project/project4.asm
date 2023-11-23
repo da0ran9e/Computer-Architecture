@@ -1,5 +1,7 @@
 .data
     arraySize:         	.asciiz "Enter the number of elements in the array: "
+    arraySizeBuffer:   .space  100
+    invalidInputMessage:.asciiz "Invalid value inputted, please try again!\n"
     arrayPrompt:    	.asciiz "Enter element "
     colon:		.asciiz ": "
     findPrompt:     	.asciiz "Enter the number to find: "
@@ -29,13 +31,49 @@ main:
 #       updated.
 #---------------------------------------------------------------------
     #enter the number of elements
+    begin_input:
         li $v0, 4
         la $a0, arraySize
         syscall
+        
+        ###
+        # $t1, $t2, $t3 will be reset after inputting
+    # read user input as a string
+    	li $v0, 8
+    	la $a0, arraySizeBuffer
+    	li $a1, 100  # Maximum number of characters to read
+    	syscall
 
-        li $v0, 5
+    # check if the input is a digit
+    	la $t1, arraySizeBuffer   # $t1 points to the beginning of the buffer
+    	li $t2, 10                	# ascii value of '0'
+    	li $t4, 57			#ascii value of '9'
+
+    check_digit_loop:
+        lb $t3, 0($t1)         # load the current character
+        beqz $t3, input_valid  
+
+        # check
+        blt $t3, $t2, input_invalid 
+        bgt $t3, $t4, input_invalid 
+
+        addi $t1, $t1, 1        # Move to the next character
+        j check_digit_loop
+    
+    input_invalid:
+        li $v0, 4
+        la $a0, invalidInputMessage
         syscall
-        move $t0, $v0 # $t0 (n) number of elements
+        j begin_input
+
+    input_valid:
+        # Convert the string to an integer
+        li $v0, 4
+        la $a0, arraySizeBuffer
+        syscall
+        move $t0, $v0  # $t0 contains the integer value (size of the array)
+        
+        ###
 
         beq $t0, $zero, end_program # Check if the array is 0-size
 
