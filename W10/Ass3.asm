@@ -8,49 +8,71 @@
 .text
 main:
 prepare:
-	li $a0, 90
-	jal ROTATE
-	jal TRACK
-	jal GO
-	li $v0, 32
-	li $a0, 3000
-	syscall
-	jal UNTRACK
-	
 	li $a0, 180
 	jal ROTATE
 	jal TRACK
 	jal GO
+	
 	li $v0, 32
-	li $a0, 3000
+	li $a0, 6500
 	syscall
+	
+	jal UNTRACK
+	
+	li $a0, 90
+	jal ROTATE
+	jal TRACK
+	jal GO
+	
+	li $v0, 32
+	li $a0, 1000
+	syscall
+	
 	jal UNTRACK
 first_edge:
-	li $a0, 120
+	li $a0, 30
 	jal ROTATE
 	jal TRACK
 	jal GO
+	
 	li $v0, 32
-	li $a0, 3000
+	li $a0, 6000
 	syscall
+	
 	jal UNTRACK
 second_edge:
-	li $a0, 240
+	li $a0, 150
 	jal ROTATE
 	jal TRACK
 	jal GO
+	
 	li $v0, 32
-	li $a0, 3000
+	li $a0, 6000
 	syscall
+	
 	jal UNTRACK
 third_edge:
-	li $a0, 0
+	li $a0, 330
 	jal ROTATE
 	jal TRACK
 	jal GO
+	
 	li $v0, 32
 	li $a0, 3000
 	syscall
+	
+	jal UNTRACK
+fourth_edge:
+	li $a0, 270
+	jal ROTATE
+	jal TRACK
+	jal GO
+	
+	li $v0, 32
+	li $a0, 3000
+	
+	syscall
+	
 	jal UNTRACK
 done:
 	li $a0, 90
