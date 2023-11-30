@@ -3,9 +3,9 @@
 
 .text
 main:
-	li $a0, 0x6f			# set value for segments
+	li $a0, 0xdb			# value of 2 with DP
 	jal show_7seg_left		# show
-	li $a0, 0xcf			# set value for segments
+	li $a0, 0x6d			# value of 5
 	jal show_7seg_right		# show
 exit:
 	li $v0, 10
