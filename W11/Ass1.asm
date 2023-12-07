@@ -50,12 +50,10 @@ polling_row4:
 	lb $a0, 0($t2) # read scan code of key button
 	bnez $a0, print
 print: 	
-	li $a0, 0xdb			# value of 2 with DP
-	li $t0, SEVENSEG_LEFT		# assign port's address
-	sb $a0, 0($t0)			# assign new value
-	jr $ra
 	li $v0, 34 
 	syscall
+
+
 sleep: 	li $a0, 1000 # delay
 	li $v0, 32
 	syscall
