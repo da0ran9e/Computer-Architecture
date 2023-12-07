@@ -5,9 +5,9 @@
 .eqv	DISPLAY_READY	0xffff0008
 
 .data
-exit_command:	.asciiz "exit"
+exit:		.asciiz "exit"
 receive:	.space 16
-new_line:	.byte '\n'
+endl:		.byte '\n'
 
 #---------------------------------------------------
 # Main procedure
@@ -23,8 +23,8 @@ main:
 	addi $s4, $zero, 4			# limit = $s4 = 4
 	la $s3, receive				# $s3 = base address of receive
 	
-	la $t1, new_line
-	lb $t7, 0($t1)				# load '\n' character to $t7
+	la $t1, endl
+	lb $t7, 0($t1)				# t7 = '\n'
 set:
 	add $s2, $zero, $zero			# count = $s2 = 0
 loop:
@@ -64,7 +64,7 @@ end_main:
 #---------------------------------------------------
 check_command:
 	add $a0, $zero, $zero			# $a0 = 0
-	la $t0, exit_command			# $t0 = base address of exit_command
+	la $t0, exit			# $t0 = base address of exit_command
 	addi $t1, $zero, 3			# index = $t1 = 3
 check:
 	bltz $t1, assign			# if index < 0 then assign
