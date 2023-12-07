@@ -24,6 +24,7 @@
 # Eg. equal 0x11, means that key button 0 pressed.
 # Eg. equal 0x28, means that key button D pressed.
 .eqv OUT_ADRESS_HEXA_KEYBOARD 0xFFFF0014
+.eqv	SEVENSEG_LEFT	0xffff0011	# left seven-segment led address
 .text
 main:   li $t1, IN_ADRESS_HEXA_KEYBOARD
 	li $t2, OUT_ADRESS_HEXA_KEYBOARD
@@ -35,7 +36,7 @@ polling:
 polling_row1:
 	sb $t3, 0($t1 ) # must reassign expected row
 	lb $a0, 0($t2) # read scan code of key button
-bnez $a0, print 
+	bnez $a0, print 
 polling_row2:
 	sb $t4, 0($t1 ) # must reassign expected row
 	lb $a0, 0($t2) # read scan code of key button
@@ -48,10 +49,15 @@ polling_row4:
 	sb $t6, 0($t1 ) # must reassign expected row
 	lb $a0, 0($t2) # read scan code of key button
 	bnez $a0, print
-print: 	li $v0, 34 # print integer (hexa)
+print: 	
+	li $a0, 0xdb			# value of 2 with DP
+	li $t0, SEVENSEG_LEFT		# assign port's address
+	sb $a0, 0($t0)			# assign new value
+	jr $ra
+	li $v0, 34 
 	syscall
-sleep: 	li $a0, 100 # sleep 100ms
+sleep: 	li $a0, 1000 # delay
 	li $v0, 32
 	syscall
 back_to_polling: 
-	j polling # continue polling
+	j polling 
