@@ -6,7 +6,7 @@
 
 .data
 exit:		.asciiz "exit"
-receive:	.space 16
+receive:	.space 16 #receiving address
 endl:		.byte '\n'
 
 #---------------------------------------------------
@@ -19,18 +19,16 @@ main:
 	
 	li $s0, DISPLAY_CODE
 	li $s1, DISPLAY_READY
-	
-	addi $s4, $zero, 4			# limit = $s4 = 4
-	la $s3, receive				# $s3 = base address of receive
+			
+	la $s3, receive				
 	
 	la $t1, endl
-	lb $t7, 0($t1)				# t7 = '\n'
-set:
-	add $s2, $zero, $zero			# count = $s2 = 0
-loop:
-	seq $t8, $s2, $s4			# if count == limit then $t8 = 1 else $t8 = 0
-	beq $t8, $zero, wait_for_key		# if count != limit, jump to wait_for_key
-	jal check_command			# else call check_command procedure
+	lb $t7, 0($t1)				
+reset:
+	add $s2, $zero, $zero			# reset counter
+loop:			
+	beq $s2, 4, wait_for_key		#check key length
+	jal check_command			
 	bne $a0, $zero, quit			# if $a0 != 0 then quit
 wait_for_key:
 	lw $t1, 0($k1)				# $t1 = KEY_READY
@@ -43,13 +41,10 @@ read_key:					# else read key
 wait_for_display:
 	lw $t2, 0($s1)				# $t2 = DISPLAY_READY
 	beq $t2, $zero, wait_for_display	# if DISPLAY_READY == 0 then continue waiting
-						# else
-#encrypt:					# change input key
-#	addi $t0, $t0, 1
 show_key:					# show key
 	sw $t0, 0($s0)
 check_new_line:
-	beq $t0, $t7, set
+	beq $t0, $t7, reset
 continue:					# continue the loop
 	j loop
 quit:
