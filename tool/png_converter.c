@@ -56,6 +56,8 @@ void read_png_file(const char *filename) {
     png_byte color_type = png_get_color_type(png, info);
     png_byte bit_depth = png_get_bit_depth(png, info);
 
+    printf("Size: %dx%d\n", width, height);
+
     if (bit_depth == 16)
         png_set_strip_16(png);
 
@@ -85,11 +87,11 @@ void read_png_file(const char *filename) {
     fclose(fp);
 
     // Convert pixel data to binary string
-    printf("const char *binary_string = \"");
+    printf("binary_string = \"");
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             png_bytep px = &(row_pointers[y][x * 4]);
-            printf("\\x00%02X%02X%02X%02X, ", px[0], px[1], px[2], px[3]);
+            printf("\\x00%02X%02X%02X, ", px[0], px[1], px[2]);
         }
     }
     printf("\";\n");
